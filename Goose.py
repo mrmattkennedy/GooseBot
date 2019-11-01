@@ -5,12 +5,11 @@ import random
 import constants
 
 def get_messages_until_delete():
-
     try:
         f = open(constants.counter_file_path, "r")
         return int(f.read())
     except:
-        return random.randrange(7, 13, 1)
+        return random.randrange(constants.random_messages_minimum, constants.random_messages_maximum)
 
 def get_household_items():
     try:
@@ -19,16 +18,27 @@ def get_household_items():
         #File doesn't exist
         print("Error: no household items file found")
         sys.exit(1)
-"""
-Set up varaibles. Need:
-token,
-client,
-number of messages until delete,
-list of items,
-current lake contents
-"""
 
-TOKEN = 'NjM5ODExMDg2MzQ1OTYxNDcz.XbxmVw.c0HYtD2KFqypeiEkrJw-LXAX0ag'
+def add_to_lake(item):
+    with open(constants.lake_contents_path, "r+") as f:
+        current_contents = [line.rstrip().split(",") for line in list(f)]
+        
+        if any(item in item_logged for item_logged in current_contents):
+            index = [i for i, lst in enumerate(current_contents) if item in lst][0]
+            current_contents[index][1] += 1
+        elif len(current_contents) == 0:
+            temp = [item.rstrip(), 0]
+            current_contents.insert(temp, 0)
+        else:
+            temp = [item.rstrip(), 0]
+            current_contents.append(temp)
+
+        print(current_contents)
+        for item_content in current_contents:
+            f.write(item_content[0] + "," + str(item_content[1]) + "\n")
+                
+#Set up variables
+TOKEN = 'NjM5ODExMDg2MzQ1OTYxNDcz.Xbx2BQ.htQd9LAXSD-FAAnqgHH4kEi_KZI'
 client = discord.Client()
 rand_messages_to_delete = get_messages_until_delete()
 item_list = get_household_items()
@@ -60,7 +70,15 @@ async def on_message(message):
     #steal
     if message.content.startswith(constants.steal_message_token):
         random_index = random.randrange(len(item_list))
-        await message.channel.send("This dang goose just stole a " + item_list[random_index].rstrip() + " and put it in the lake")
+        stolen_item = item_list[random_index].rstrip()
+        first_letter = stolen_item[:1]
+        article = "a "
+
+        if first_letter == 'a' or first_letter == 'e' or first_letter == 'i' or first_letter == 'o' or first_letter == 'u':
+            article = "an "
+        
+        await message.channel.send("This dang goose just stole " + article + stolen_item + " and put it in the lake")
+        add_to_lake(stolen_item)
         return
 
     #message stolen
@@ -69,7 +87,7 @@ async def on_message(message):
         await message.channel.send(constants.loud_honk_message + " " + constants.loud_honk_message)
         await message.channel.send(constants.message_stolen)
         await message.channel.send(constants.loud_honk_message + " " + constants.loud_honk_message)
-        rand_messages_to_delete = random.randrange(7, 13, 1)
+        rand_messages_to_delete = random.randrange(constants.random_messages_minimum, constants.random_messages_maximum)
         return
 
 @client.event
