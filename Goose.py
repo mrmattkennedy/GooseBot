@@ -31,14 +31,21 @@ async def on_message(message):
     # we do not want the bot to reply to itself
     if message.author == client.user:
         return
+    
+    #all other messages are legit, so decrement
+    rand_messages_to_delete-=1
 
+    #honk
     if message.content.startswith(constants.small_honk_token):
         await message.channel.send(constants.small_honk_message)
-        
+
+    #HONK
     if message.content.startswith(constants.loud_honk_token):
-        #await message.delete(); #how to delete
         await message.channel.send(constants.loud_honk_message, tts = True)
-      
+
+    if rand_messages_to_delete <= 0:
+        await message.delete()
+        await message.channel.send(constants.message_stolen)
 
 @client.event
 async def on_ready():
