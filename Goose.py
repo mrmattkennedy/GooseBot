@@ -19,13 +19,17 @@ def get_household_items():
         print("Error: no household items file found")
         sys.exit(1)
 
-#Need to work on commas in items
 def add_to_lake(item):
+    #Open the file for reading and writing
     with open(constants.lake_contents_path, "r+") as f:
+        #Get each line of the file into a list of lists, splitting each line with the delimiter
         current_contents = [line.rstrip().split(constants.data_delimiter) for line in list(f)]
-        
+
+        #If the item exists, it will return true here
         if any(item in item_logged for item_logged in current_contents):
+            #Set the index to the first instance of the item in current contents
             index = [i for i, lst in enumerate(current_contents) if item in lst][0]
+            #Incremement count by 1
             current_contents[index][1] = str(int(current_contents[index][1]) + 1)
         elif len(current_contents) == 0:
             temp = [item.rstrip(), 1]
@@ -34,7 +38,6 @@ def add_to_lake(item):
             temp = [item.rstrip(), 1]
             current_contents.append(temp)
 
-        print(current_contents)
         f.seek(0)
         for item_content in current_contents:
             f.write(item_content[0] + constants.data_delimiter + str(item_content[1]) + "\n")
@@ -45,7 +48,6 @@ TOKEN = 'NjM5ODExMDg2MzQ1OTYxNDcz.Xb2Trw.FNIq9JJcxhybI7I5Nc-EVB9NX4M'
 client = discord.Client()
 rand_messages_to_delete = get_messages_until_delete()
 item_list = get_household_items()
-print(type(item_list))
 
 @client.event
 async def on_message(message):
@@ -100,4 +102,9 @@ async def on_ready():
     print(client.user.id)
     print('------')
 
-client.run(TOKEN)
+try:
+    client.run(TOKEN)
+except discord.errors.LoginFailure as token_error:
+    print(str(token_error))
+except:
+    print(sys.exc_info()[0])
