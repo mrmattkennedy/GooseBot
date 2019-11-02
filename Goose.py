@@ -22,25 +22,26 @@ def get_household_items():
 #Need to work on commas in items
 def add_to_lake(item):
     with open(constants.lake_contents_path, "r+") as f:
-        current_contents = [line.rstrip().split(",") for line in list(f)]
+        current_contents = [line.rstrip().split(constants.data_delimiter) for line in list(f)]
         
         if any(item in item_logged for item_logged in current_contents):
             index = [i for i, lst in enumerate(current_contents) if item in lst][0]
-            current_contents[index][1] = str(current_contents[index][1] + 1)
+            current_contents[index][1] = str(int(current_contents[index][1]) + 1)
         elif len(current_contents) == 0:
-            temp = [item.rstrip(), 0]
+            temp = [item.rstrip(), 1]
             current_contents.insert(0, temp)
         else:
-            temp = [item.rstrip(), 0]
+            temp = [item.rstrip(), 1]
             current_contents.append(temp)
 
         print(current_contents)
         f.seek(0)
         for item_content in current_contents:
-            f.write(item_content[0] + "," + str(item_content[1]) + "\n")
+            f.write(item_content[0] + constants.data_delimiter + str(item_content[1]) + "\n")
         f.truncate()
+        
 #Set up variables
-TOKEN = 'NjM5ODExMDg2MzQ1OTYxNDcz.Xb2Pjw.95fLWk_hq8G1TnK3RVbLE1KgK8w'
+TOKEN = 'NjM5ODExMDg2MzQ1OTYxNDcz.Xb2Trw.FNIq9JJcxhybI7I5Nc-EVB9NX4M'
 client = discord.Client()
 rand_messages_to_delete = get_messages_until_delete()
 item_list = get_household_items()

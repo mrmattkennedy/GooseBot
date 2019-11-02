@@ -2,6 +2,8 @@ counter_file_path = "messages_until_delete.dat"
 items_path = "data/household_items.dat"
 lake_contents_path = "data/current_lake_contents.dat"
 
+data_delimiter = "..."
+
 random_messages_minimum = 7
 random_messages_maximum = 13
 
