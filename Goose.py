@@ -38,16 +38,24 @@ def add_to_lake(item):
             temp = [item.rstrip(), 1]
             current_contents.append(temp)
 
+        #overwrite what is there so start from beginning
         f.seek(0)
         for item_content in current_contents:
             f.write(item_content[0] + constants.data_delimiter + str(item_content[1]) + "\n")
         f.truncate()
+
+def read_lake_contents():
+    with open(constants.lake_contents_path, "r") as f:
+        #Get each line of the file into a list of lists, splitting each line with the delimiter
+        return [line.rstrip().split(constants.data_delimiter) for line in list(f)]
+
         
 #Set up variables
-TOKEN = 'NjM5ODExMDg2MzQ1OTYxNDcz.Xb2Trw.FNIq9JJcxhybI7I5Nc-EVB9NX4M'
+TOKEN = 'NjM5ODExMDg2MzQ1OTYxNDcz.Xb5Aew.viH-vkmKMmJD8hBhxWpfiNKyIzQ'
 client = discord.Client()
 rand_messages_to_delete = get_messages_until_delete()
 item_list = get_household_items()
+lake_contents = []
 
 @client.event
 async def on_message(message):
@@ -58,6 +66,7 @@ async def on_message(message):
     #all other messages are legit, so decrement
     global rand_messages_to_delete
     global item_list
+    global lake_contents
     
     rand_messages_to_delete-=1
     print(rand_messages_to_delete)
@@ -86,6 +95,22 @@ async def on_message(message):
         add_to_lake(stolen_item)
         return
 
+    #lake
+    if message.content.startswith(constants.lake_contents_token):
+        lake_contents = read_lake_contents()
+        message_to_write = "The goose has stolen:\n"
+        for item in lake_contents:
+            first_letter = item[0][:1]
+            article = "a "
+
+            #ternary operator: if more than 1 occurance of stealing, use times, else, use time
+            times_plural_word = ((lambda: " time", lambda: " times")[int(item[1]) > 1]())
+            if first_letter == 'a' or first_letter == 'e' or first_letter == 'i' or first_letter == 'o' or first_letter == 'u':
+                article = "an "
+            message_to_write += article + item[0] + " " + item[1] + times_plural_word + "\n"
+        await message.channel.send(message_to_write)
+        return
+
     #message stolen
     if rand_messages_to_delete <= 0:
         await message.delete()
@@ -105,6 +130,9 @@ async def on_ready():
 try:
     client.run(TOKEN)
 except discord.errors.LoginFailure as token_error:
-    print(str(token_error))
+    if str(token_error) == constants.token_error_message:
+        print(str(token_error))
+    else:
+        raise
 except:
     print(sys.exc_info()[0])
