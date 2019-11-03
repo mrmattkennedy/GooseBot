@@ -3,6 +3,7 @@ items_path = "data/household_items.dat"
 lake_contents_path = "data/current_lake_contents.dat"
 
 data_delimiter = "..."
+stolen_message_delimiter = "==="
 
 token_error_message = "Improper token has been passed."
 

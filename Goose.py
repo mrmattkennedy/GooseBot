@@ -24,19 +24,25 @@ def add_to_lake(item):
     with open(constants.lake_contents_path, "r+") as f:
         #Get each line of the file into a list of lists, splitting each line with the delimiter
         current_contents = [line.rstrip().split(constants.data_delimiter) for line in list(f)]
+        
+        try:
+            #if there's nothing in list, [0] at end throws error
+            message_index = [i for i, lst in enumerate(current_contents) if constants.stolen_message_delimiter in lst][0]
+            current_contents = current_contents[:message_index]
+        except IndexError:
+            pass
 
-        #If the item exists, it will return true here
-        if any(item in item_logged for item_logged in current_contents):
-            #Set the index to the first instance of the item in current contents
-            index = [i for i, lst in enumerate(current_contents) if item in lst][0]
-            #Incremement count by 1
-            current_contents[index][1] = str(int(current_contents[index][1]) + 1)
-        elif len(current_contents) == 0:
-            temp = [item.rstrip(), 1]
-            current_contents.insert(0, temp)
-        else:
-            temp = [item.rstrip(), 1]
-            current_contents.append(temp)
+        #TODO: read if item exists. if not, add as message.
+        with open(constants.items_path, "r") as item_list:
+            #If the item exists, it will return true here
+            if any(item in item_logged for item_logged in current_contents):
+                #Set the index to the first instance of the item in current contents
+                index = [i for i, lst in enumerate(current_contents) if item in lst][0]
+                #Incremement count by 1
+                current_contents[index][1] = str(int(current_contents[index][1]) + 1)
+            else:
+                temp = [item.rstrip(), 1]
+                current_contents.insert(0, temp)
 
         #overwrite what is there so start from beginning
         f.seek(0)
@@ -51,7 +57,7 @@ def read_lake_contents():
 
         
 #Set up variables
-TOKEN = 'NjM5ODExMDg2MzQ1OTYxNDcz.Xb5Aew.viH-vkmKMmJD8hBhxWpfiNKyIzQ'
+TOKEN = 'NjM5ODExMDg2MzQ1OTYxNDcz.Xb8A6w.Pb4FgxtjYpGfxASe5oC6wUqKt5Q'
 client = discord.Client()
 rand_messages_to_delete = get_messages_until_delete()
 item_list = get_household_items()
@@ -122,15 +128,13 @@ async def on_message(message):
 
 @client.event
 async def on_ready():
-    print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
+    print('Goose bot ready')
     print('------')
 
 try:
     client.run(TOKEN)
 except discord.errors.LoginFailure as token_error:
-    if str(token_error) == constants.token_error_message:
+    if str(token_error) == constants.token_error_message: #if specifically bad token
         print(str(token_error))
     else:
         raise
