@@ -36,10 +36,11 @@ async def on_message(message):
 
     #help
     if message.content.startswith(constants.help_token):
-        await message.channel.send(constants.help_message)
-        command_string = "User created commands:\n"
+        command_string = constants.help_message
+        command_string += "User created commands:\n"
         for command in user_commands:
-            command_string += command[0] + "\n"
+            command_string += "!" + command[0] + "\n"
+        command_string += "\nYou can PM me any of these commands, or send them in a server I'm a part of!"
         await message.channel.send(command_string) 
         return
     
@@ -74,6 +75,9 @@ async def on_message(message):
 
     #add
     if message.content.startswith(constants.add_token):
+        if message.content.strip() == constants.add_token:
+            await message.channel.send(constants.add_usage)
+            return
         try:
             methods.add_command(message.content)
             await message.channel.send(constants.add_confirmed)
@@ -84,6 +88,23 @@ async def on_message(message):
             #traceback.print_exc()
             return
 
+    #remove
+    if message.content.startswith(constants.remove_token):
+        #just the token, print usage
+        if message.content.strip() == constants.remove_token:
+            await message.channel.send(constants.remove_usage)
+            return
+        try:
+            methods.remove_command(message.content)
+            await message.channel.send(constants.remove_confirmed)
+            user_commands = methods.get_user_commands()
+            return
+        except Exception as e:
+            await message.channel.send(constants.remove_failed + ": " + str(e))
+            #traceback.print_exc()
+            return
+
+    #user command
     if any(message.content[1:] in command[0] for command in user_commands):
         index = [i for i, lst in enumerate(user_commands) if message.content[1:] in lst][0]
         await message.channel.send(user_commands[index][1])

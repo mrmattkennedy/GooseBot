@@ -10,7 +10,7 @@ add_message_delimiter = "..."
 stolen_image_one_path = "pictures/stolen-1.png"
 stolen_image_two_path = "pictures/stolen-2.jpg"
 
-token_error_message = "Improper token has been passed."
+token_error_message = "Bad token has been passed."
 
 random_messages_minimum = 20
 random_messages_maximum = 30
@@ -25,7 +25,12 @@ help_token = "!help"
 add_token = "!add"
 add_confirmed = "Command successfully stolen (saved)"
 add_failed = "Failed to steal (save) command"
-help_message = "HONK HONK\n\n!honk:\tsmol honk\n!HONK:\tL O U D honk\n!steal:\tthe goose will steal something\n!lake:\tsee what the goose has stolen so far\n!add [key]...[message]\tAdds a custom command, where if you type !key, the bot will send the !message (ex: !add sing...the goose can only honk)\n\nYou can PM me any of these commands, or send them in a server I'm a part of!"
+add_usage = "Usage: !add [key]...[message], Example: !add sing...the goose can only honk"
+remove_token = "!remove"
+remove_confirmed = "Command successfully stolen (removed)"
+remove_failed = "Failed to steal (remove) command)"
+remove_usage = "Usage: !remove [key]. Example: !remove sing"
+help_message = "HONK HONK\n\n!honk:\tsmol honk\n!HONK:\tL O U D honk\n!steal:\tthe goose will steal something\n!lake:\tsee what the goose has stolen so far\n!add [key]...[message]\tAdds a custom command, where if you type !key, the bot will send the message\n!remove [key]\tRemoves a custom command made by the user\n\n"
 
 message_stolen = "The goose has stolen your message! Better check the lake..."
 

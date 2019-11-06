@@ -106,12 +106,38 @@ def add_command(message):
         
     with open(constants.user_commands_path, "r+") as f:
         current_contents = [line.rstrip().split(constants.data_delimiter) for line in list(f)]
-        print(current_contents)
         if any(key in keys[0] for keys in current_contents):
             raise Exception("The command already exists. Use a different key")
         
         f.write(key + constants.data_delimiter + output + "\n")
 
+def remove_command(message):
+    #Must be 0 delimiters
+    if message.count(constants.add_message_delimiter) != 0:
+        raise Exception("The message must have no " + '"' + constants.add_message_delimiter + '"' + " in it")
+    #Need space after token
+    if message[len(constants.remove_token)] != " ":
+        raise Exception("The message needs a space after " + constants.remove_token)
+
+    key = message[len(constants.remove_token)+1:].strip()
+    print(key)
+    #if file doesn't exist, there are no commands yet
+    if not os.path.isfile(constants.user_commands_path):
+        raise Exception("The command you tried to steal (remove) does not exist")
+
+    with open(constants.user_commands_path, "r+") as f:
+        current_contents = [line.rstrip().split(constants.data_delimiter) for line in list(f)]
+        if any(key in commands[0] for commands in current_contents):
+            index = [i for i, lst in enumerate(current_contents) if key in lst][0]
+            del current_contents[index]
+
+            f.seek(0)
+            for command in current_contents:
+                f.write(command[0] + constants.data_delimiter + command[1] + "\n")
+            f.truncate()
+        else:
+            raise Exception("The command you tried to steal (remove) does not exist")
+                
 def get_user_commands():
     if not os.path.isfile(constants.user_commands_path):
         open(constants.user_commands_path, "w").close()
