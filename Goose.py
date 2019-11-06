@@ -56,17 +56,60 @@ async def on_message(message):
 
     #steal
     if message.content.startswith(constants.steal_message_token):
-        random_index = random.randrange(len(item_list))
-        stolen_item = item_list[random_index].rstrip()
-        first_letter = stolen_item[:1]
-        article = "a "
+        if message.content.strip() == constants.steal_message_token:
+            random_index = random.randrange(len(item_list))
+            stolen_item = item_list[random_index].rstrip()
+            first_letter = stolen_item[:1]
+            article = "a "
 
-        if first_letter == 'a' or first_letter == 'e' or first_letter == 'i' or first_letter == 'o' or first_letter == 'u':
-            article = "an "
-        
-        await message.channel.send("This dang goose just stole " + article + stolen_item + " and put it in the lake")
-        methods.add_to_lake(stolen_item)
-        return
+            if first_letter == 'a' or first_letter == 'e' or first_letter == 'i' or first_letter == 'o' or first_letter == 'u':
+                article = "an "
+            
+            await message.channel.send("This dang goose just stole " + article + stolen_item + " and put it in the lake")
+            methods.add_to_lake(stolen_item)
+        else:
+            try:
+                #get channel
+                message_channel = message.channel
+                if isinstance(message_channel, discord.channel.DMChannel):
+                    raise Exception("The goose is powerful, but not powerful enough to steal messages in a DM channel, sorry")
+
+                #get server
+                guild_to_check = message.guild
+
+                #Need to get a list of members, see if they match
+                if message.content[len(constants.steal_message_token)] != " ":
+                    raise Exception("Format: !steal [name]")
+
+                #get all members that match the description from the user
+                name = message.content[len(constants.steal_message_token)+1:].strip()
+                matching_names = []
+                for member in guild_to_check.members:
+                    if name == member.display_name:
+                        matching_names.append(member)
+
+                #if not exactly 1 member like that, there was a problem
+                if len(matching_names) == 0:
+                    raise Exception("The goose couldn't find anyone with the name " + '"' + name + '"')
+                elif len(matching_names) > 1:
+                    raise Exception("The goose found more than one person with that name")
+
+                #get last 100 messages from that channel
+                async for previous_message in message_channel.history(limit=100):
+                    if previous_message.author.display_name == name:
+                        #Delete message, send 2 loud honks, then send random image (2 choices)
+                        await previous_message.delete()
+                        await message.channel.send(constants.loud_honk_message + " " + constants.loud_honk_message)
+                        await message.channel.send(constants.other_message_stolen + '"' + previous_message.content + '" from **' + previous_message.author.display_name + '**')
+                        image = ((lambda: constants.stolen_image_one_path, lambda: constants.stolen_image_two_path)[random.randint(1, 2) == 1]())
+                        await message.channel.send(file=discord.File(image))
+                        
+                        rand_messages_to_delete = random.randrange(constants.random_messages_minimum, constants.random_messages_maximum)
+                        methods.steal_message(previous_message.author.display_name, previous_message.content)
+                        break
+                return
+            except Exception as error:
+                await message.channel.send(str(error))
 
     #lake
     if message.content.startswith(constants.lake_contents_token):        

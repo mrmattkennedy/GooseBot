@@ -30,8 +30,16 @@ remove_token = "!remove"
 remove_confirmed = "Command successfully stolen (removed)"
 remove_failed = "Failed to steal (remove) command)"
 remove_usage = "Usage: !remove [key]. Example: !remove sing"
-help_message = "HONK HONK\n\n!honk:\tsmol honk\n!HONK:\tL O U D honk\n!steal:\tthe goose will steal something\n!lake:\tsee what the goose has stolen so far\n!add [key]...[message]\tAdds a custom command, where if you type !key, the bot will send the message\n!remove [key]\tRemoves a custom command made by the user\n\n"
+help_message = """HONK HONK\n
+!honk:\tsmol honk
+!HONK:\tL O U D honk
+!steal [optional: name]:\tThe goose will steal something. If you add someone's name, it will steal their last message in that channel (checks last 100 messages in the channel)
+!lake:\tsee what the goose has stolen so far
+!add [key]...[message]\tAdds a custom command, where if you type !key, the bot will send the message
+!remove [key]\tRemoves a custom command made by the user\n
+"""
 
 message_stolen = "The goose has stolen your message! Better check the lake..."
+other_message_stolen = "Goose has successfuly stolen "
 
 dm_insults = ["I will steal your rake", "You are a stinky boy", "I am silver-global-grandmaster-elite in CS:GO"]
