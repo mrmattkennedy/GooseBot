@@ -30,6 +30,7 @@ remove_token = "!remove"
 remove_confirmed = "Command successfully stolen (removed)"
 remove_failed = "Failed to steal (remove) command)"
 remove_usage = "Usage: !remove [key]. Example: !remove sing"
+
 help_message = """HONK HONK\n
 !honk:\tsmol honk
 !HONK:\tL O U D honk

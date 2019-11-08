@@ -46,15 +46,41 @@ async def on_message(message):
     
     #honk
     if message.content.startswith(constants.small_honk_token):
-        await message.channel.send(constants.small_honk_message)
-        return
+        if message.content == constants.small_honk_token:
+            await message.channel.send(constants.small_honk_message)
+            return
+        else:
+            try:
+                user = methods.check_channel_and_user(constants.small_honk_token, message)
+                await message.channel.send(constants.small_honk_message + " " + user.mention)
+                if user.dm_channel == None:
+                    await user.create_dm()
 
+                await user.dm_channel.send(message.author.display_name + " just told me to quietly honk at you, are you just gonna take that?")
+                return
+            except Exception as error:
+                await message.channel.send(str(error))
+                return
+                
     #HONK
     if message.content.startswith(constants.loud_honk_token):
-        await message.channel.send(constants.loud_honk_message, tts = True)
-        return
+        if message.content == constants.loud_honk_token:
+            await message.channel.send(constants.loud_honk_message)
+            return
+        else:
+            try:
+                user = methods.check_channel_and_user(constants.loud_honk_token, message)
+                await message.channel.send(constants.loud_honk_message + " " + constants.loud_honk_message + " " + user.mention, tts=True)
+                if user.dm_channel == None:
+                    await user.create_dm()
 
-    #steal
+                await user.dm_channel.send(message.author.display_name + " just told me to loudly honk at you, are you just gonna take that?")
+                return
+            except Exception as error:
+                await message.channel.send(str(error))
+                return
+
+    #steal, make it so this will steal their last non-command message
     if message.content.startswith(constants.steal_message_token):
         if message.content.strip() == constants.steal_message_token:
             random_index = random.randrange(len(item_list))
@@ -69,33 +95,10 @@ async def on_message(message):
             methods.add_to_lake(stolen_item)
         else:
             try:
-                #get channel
-                message_channel = message.channel
-                if isinstance(message_channel, discord.channel.DMChannel):
-                    raise Exception("The goose is powerful, but not powerful enough to steal messages in a DM channel, sorry")
-
-                #get server
-                guild_to_check = message.guild
-
-                #Need to get a list of members, see if they match
-                if message.content[len(constants.steal_message_token)] != " ":
-                    raise Exception("Format: !steal [name]")
-
-                #get all members that match the description from the user
-                name = message.content[len(constants.steal_message_token)+1:].strip()
-                matching_names = []
-                for member in guild_to_check.members:
-                    if name == member.display_name:
-                        matching_names.append(member)
-
-                #if not exactly 1 member like that, there was a problem
-                if len(matching_names) == 0:
-                    raise Exception("The goose couldn't find anyone with the name " + '"' + name + '"')
-                elif len(matching_names) > 1:
-                    raise Exception("The goose found more than one person with that name")
-
+                name = methods.check_channel_and_user(constants.steal_message_token, message).display_name
+                
                 #get last 100 messages from that channel
-                async for previous_message in message_channel.history(limit=100):
+                async for previous_message in message.channel.history(limit=100):
                     if previous_message.author.display_name == name:
                         #Delete message, send 2 loud honks, then send random image (2 choices)
                         await previous_message.delete()
@@ -110,6 +113,7 @@ async def on_message(message):
                 return
             except Exception as error:
                 await message.channel.send(str(error))
+                return
 
     #lake
     if message.content.startswith(constants.lake_contents_token):        

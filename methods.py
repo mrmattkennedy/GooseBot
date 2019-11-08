@@ -137,6 +137,34 @@ def remove_command(message):
             f.truncate()
         else:
             raise Exception("The command you tried to steal (remove) does not exist")
+
+def check_channel_and_user(token, message):
+    #get channel
+    message_channel = message.channel
+    if isinstance(message_channel, discord.channel.DMChannel):
+        raise Exception("The goose is powerful, but not powerful enough to steal messages in a DM channel, sorry")
+
+    #get server
+    guild_to_check = message.guild
+
+    #Need to get a list of members, see if they match
+    if message.content[len(token)] != " ":
+        raise Exception("Format: " + token + " [name]")
+
+    #get all members that match the description from the user
+    name = message.content[len(token)+1:].strip()
+    matching_names = []
+    for member in guild_to_check.members:
+        if name == member.display_name:
+            matching_names.append(member)
+
+    #if not exactly 1 member like that, there was a problem
+    if len(matching_names) == 0:
+        raise Exception("The goose couldn't find anyone with the name " + '"' + name + '"')
+    elif len(matching_names) > 1:
+        raise Exception("The goose found more than one person with that name")
+
+    return matching_names[0]
                 
 def get_user_commands():
     if not os.path.isfile(constants.user_commands_path):
