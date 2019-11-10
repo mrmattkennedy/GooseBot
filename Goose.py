@@ -9,7 +9,6 @@ import sys
         
 #Set up variables
 client = discord.Client()
-rand_messages_to_delete = methods.get_messages_until_delete()
 item_list = methods.get_household_items()
 lake_contents = []
 user_commands = methods.get_user_commands()
@@ -21,16 +20,11 @@ async def on_message(message):
         return
 
     #all other messages are legit, so decrement
-    global rand_messages_to_delete
     global item_list
     global lake_contents
     global user_commands
 
-    #if not a DM, then decrement stolen message counter
-    if not isinstance(message.channel, discord.channel.DMChannel):
-        rand_messages_to_delete-=1
-        print(rand_messages_to_delete)
-    elif not message.content.startswith("!"):
+    if not message.content.startswith("!") and isinstance(message.channel, discord.channel.DMChannel):
         random_insult = random.randint(0, len(constants.dm_insults) - 1)
         await message.channel.send(constants.dm_insults[random_insult])
 
@@ -107,7 +101,6 @@ async def on_message(message):
                         image = ((lambda: constants.stolen_image_one_path, lambda: constants.stolen_image_two_path)[random.randint(1, 2) == 1]())
                         await message.channel.send(file=discord.File(image))
                         
-                        rand_messages_to_delete = random.randrange(constants.random_messages_minimum, constants.random_messages_maximum)
                         methods.steal_message(previous_message.author.display_name, previous_message.content)
                         break
                 return
@@ -159,19 +152,6 @@ async def on_message(message):
         await message.channel.send(user_commands[index][1])
         return
         
-    #message stolen
-    if rand_messages_to_delete <= 0 and not isinstance(message.channel, discord.channel.DMChannel):
-        #Delete message, send 2 loud honks, then send random image (2 choices)
-        await message.delete()
-        await message.channel.send(constants.loud_honk_message + " " + constants.loud_honk_message)
-        await message.channel.send(constants.message_stolen)
-        image = ((lambda: constants.stolen_image_one_path, lambda: constants.stolen_image_two_path)[random.randint(1, 2) == 1]())
-        await message.channel.send(file=discord.File(image))
-        
-        rand_messages_to_delete = random.randrange(constants.random_messages_minimum, constants.random_messages_maximum)
-        methods.steal_message(message.author.display_name, message.content)
-        return
-
 @client.event
 async def on_ready():
     print('Goose bot ready')
