@@ -32,8 +32,8 @@ remove_failed = "Failed to steal (remove) command)"
 remove_usage = "Usage: !remove [key]. Example: !remove sing"
 
 help_message = """HONK HONK\n
-!honk:\tsmol honk
-!HONK:\tL O U D honk
+!honk [optional: name]:\tsmol honk, or honk at someone
+!HONK [optional: name]:\tL O U D honk, or do it at someone
 !steal [optional: name]:\tThe goose will steal something. If you add someone's name, it will steal their last message in that channel (checks last 100 messages in the channel)
 !lake:\tsee what the goose has stolen so far
 !add [key]...[message]\tAdds a custom command, where if you type !key, the bot will send the message

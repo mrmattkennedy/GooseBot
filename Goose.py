@@ -152,6 +152,8 @@ async def on_message(message):
             return
 
     #user command
+    if len(message.content) < 1:
+        return
     if any(message.content[1:] in command[0] for command in user_commands):
         index = [i for i, lst in enumerate(user_commands) if message.content[1:] in lst][0]
         await message.channel.send(user_commands[index][1])
